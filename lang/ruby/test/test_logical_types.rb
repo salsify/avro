@@ -23,6 +23,7 @@ class TestLogicalTypes < Test::Unit::TestCase
       { "type": "int", "logicalType": "date" }
     SCHEMA
 
+    assert_equal 'date', schema.logical_type
     assert_encode_and_decode Date.today, schema
   end
 
@@ -46,12 +47,17 @@ class TestLogicalTypes < Test::Unit::TestCase
     # The Time.at format is (seconds, microseconds) since Epoch.
     datum = Time.at(628232400, 12000)
 
+    assert_equal 'timestamp-millis', schema.logical_type
     assert_encode_and_decode datum, schema
   end
 
   def test_timestamp_millis_long_conversion
     type = Avro::LogicalTypes::TimestampMillis
 
+    now = Time.now.utc
+    now_millis = Time.utc(now.year, now.month, now.day, now.hour, now.min, now.sec, now.usec / 1000 * 1000)
+
+    assert_equal now_millis, type.decode(type.encode(now_millis))
     assert_equal 1432849613221, type.encode(Time.utc(2015, 5, 28, 21, 46, 53, 221000))
     assert_equal Time.utc(2015, 5, 28, 21, 46, 53, 221000), type.decode(1432849613221)
   end
@@ -64,7 +70,18 @@ class TestLogicalTypes < Test::Unit::TestCase
     # The Time.at format is (seconds, microseconds) since Epoch.
     datum = Time.at(628232400, 12345)
 
+    assert_equal 'timestamp-micros', schema.logical_type
     assert_encode_and_decode datum, schema
+  end
+
+  def test_timestamp_micros_long_conversion
+    type = Avro::LogicalTypes::TimestampMicros
+
+    now = Time.now.utc
+
+    assert_equal now, type.decode(type.encode(now))
+    assert_equal 1432849613221843, type.encode(Time.utc(2015, 5, 28, 21, 46, 53, 221843))
+    assert_equal Time.utc(2015, 5, 28, 21, 46, 53, 221843), type.decode(1432849613221843)
   end
 
   def encode(datum, schema)

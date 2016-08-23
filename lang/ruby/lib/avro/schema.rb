@@ -35,16 +35,14 @@ module Avro
     LONG_MAX_VALUE = (1 << 63) - 1
 
     def self.parse(json_string)
-      json_obj = MultiJson.load(json_string)
-      schema = real_parse(json_obj, {})
-      schema.logical_type = LogicalTypes.parse(json_obj) if json_obj.is_a?(Hash)
-      schema
+      real_parse(MultiJson.load(json_string), {})
     end
 
     # Build Avro Schema from data parsed out of JSON string.
     def self.real_parse(json_obj, names=nil, default_namespace=nil)
       if json_obj.is_a? Hash
         type = json_obj['type']
+        logical_type = json_obj['logicalType']
         raise SchemaParseError, %Q(No "type" property: #{json_obj}) if type.nil?
 
         # Check that the type is valid before calling #to_sym, since symbols are never garbage
@@ -55,7 +53,7 @@ module Avro
 
         type_sym = type.to_sym
         if PRIMITIVE_TYPES_SYM.include?(type_sym)
-          return PrimitiveSchema.new(type_sym)
+          return PrimitiveSchema.new(type_sym, logical_type)
 
         elsif NAMED_TYPES_SYM.include? type_sym
           name = json_obj['name']
@@ -63,7 +61,7 @@ module Avro
           case type_sym
           when :fixed
             size = json_obj['size']
-            return FixedSchema.new(name, namespace, size, names)
+            return FixedSchema.new(name, namespace, size, names, logical_type)
           when :enum
             symbols = json_obj['symbols']
             return EnumSchema.new(name, namespace, symbols, names)
@@ -132,19 +130,20 @@ module Avro
       end
     end
 
-    def initialize(type)
+    def initialize(type, logical_type=nil)
       @type_sym = type.is_a?(Symbol) ? type : type.to_sym
+      @logical_type = logical_type
     end
 
     attr_reader :type_sym
-    attr_writer :logical_type
+    attr_reader :logical_type
 
     # Returns the type as a string (rather than a symbol), for backwards compatibility.
     # Deprecated in favor of {#type_sym}.
     def type; @type_sym.to_s; end
 
-    def logical_type
-      @logical_type || LogicalTypes::Identity
+    def type_adapter
+      @type_adapter ||= LogicalTypes.type_adapter(type, logical_type) || LogicalTypes::Identity
     end
 
     # Returns the MD5 fingerprint of the schema as an Integer.
@@ -191,8 +190,8 @@ module Avro
 
     class NamedSchema < Schema
       attr_reader :name, :namespace
-      def initialize(type, name, namespace=nil, names=nil)
-        super(type)
+      def initialize(type, name, namespace=nil, names=nil, logical_type=nil)
+        super(type, logical_type)
         @name, @namespace = Name.extract_namespace(name, namespace)
         names = Name.add_name(names, self)
       end
@@ -337,11 +336,11 @@ module Avro
 
     # Valid primitive types are in PRIMITIVE_TYPES.
     class PrimitiveSchema < Schema
-      def initialize(type)
+      def initialize(type, logical_type=nil)
         if PRIMITIVE_TYPES_SYM.include?(type)
-          super(type)
+          super(type, logical_type)
         elsif PRIMITIVE_TYPES.include?(type)
-          super(type.to_sym)
+          super(type.to_sym, logical_type)
         else
           raise AvroError.new("#{type} is not a valid primitive type.")
         end
@@ -355,12 +354,12 @@ module Avro
 
     class FixedSchema < NamedSchema
       attr_reader :size
-      def initialize(name, space, size, names=nil)
+      def initialize(name, space, size, names=nil, logical_type=nil)
         # Ensure valid cto args
         unless size.is_a?(Fixnum) || size.is_a?(Bignum)
           raise AvroError, 'Fixed Schema requires a valid integer for size property.'
         end
-        super(:fixed, name, space, names)
+        super(:fixed, name, space, names, logical_type)
         @size = size
       end
 

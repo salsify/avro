@@ -312,7 +312,7 @@ module Avro
           raise AvroError, "Cannot read unknown schema type: #{writers_schema.type}"
         end
 
-        readers_schema.logical_type.decode(datum)
+        readers_schema.type_adapter.decode(datum)
       end
 
       def read_fixed(writers_schema, readers_schema, decoder)
@@ -541,7 +541,7 @@ module Avro
       end
 
       def write_data(writers_schema, logical_datum, encoder)
-        datum = writers_schema.logical_type.encode(logical_datum)
+        datum = writers_schema.type_adapter.encode(logical_datum)
 
         unless Schema.validate(writers_schema, datum)
           raise AvroTypeError.new(writers_schema, datum)
