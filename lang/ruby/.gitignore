@@ -3,5 +3,5 @@ data.avr
 Gemfile.lock
 .bundle/
 .gem/
-avro.gemspec
+*.gemspec
 pkg/
