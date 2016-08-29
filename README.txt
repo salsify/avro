@@ -6,7 +6,7 @@ This fork contains changes to support logical types submitted in:
 
 To use this gem add the following to your Gemfile:
 
-  gem 'avro-salsify-fork', '1.9.0.0', require: 'avro'
+  gem 'avro-salsify-fork', '1.9.0.1', require: 'avro'
 
 --------------------------------------------------------------------
 
