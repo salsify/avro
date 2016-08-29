@@ -547,7 +547,7 @@ module Avro
       def write_data(writers_schema, logical_datum, encoder)
         datum = writers_schema.type_adapter.encode(logical_datum)
 
-        unless Schema.validate(writers_schema, datum)
+        unless Schema.validate(writers_schema, datum, encoded = true)
           raise AvroTypeError.new(writers_schema, datum)
         end
 
