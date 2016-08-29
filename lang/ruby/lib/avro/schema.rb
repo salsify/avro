@@ -94,7 +94,13 @@ module Avro
     end
 
     # Determine if a ruby datum is an instance of a schema
-    def self.validate(expected_schema, datum)
+    def self.validate(expected_schema, logical_datum, encoded = false)
+      datum = if encoded
+                logical_datum
+              else
+                expected_schema.type_adapter.encode(logical_datum)
+              end
+
       case expected_schema.type_sym
       when :null
         datum.nil?
@@ -181,7 +187,9 @@ module Avro
     end
 
     def to_avro(names=nil)
-      {'type' => type}
+      props = {'type' => type}
+      props['logicalType'] = logical_type if logical_type
+      props
     end
 
     def to_s

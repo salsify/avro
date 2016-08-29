@@ -84,6 +84,17 @@ EOS
     check_default(record_schema, '{"f": 11}', {"f" => 11})
   end
 
+  def test_record_with_logical_type
+    record_schema = <<EOS
+      {"type": "record",
+       "name": "Test",
+       "fields": [{"name": "ts",
+                   "type": {"type": "long",
+                            "logicalType": "timestamp-micros"}}]}
+EOS
+    check(record_schema)
+  end
+
   def test_error
     error_schema = <<EOS
       {"type": "error",
@@ -385,7 +396,7 @@ EOS
 
   def checkser(schm, randomdata)
     datum = randomdata.next
-    assert validate(schm, datum)
+    assert validate(schm, datum), 'datum is not valid for schema'
     w = Avro::IO::DatumWriter.new(schm)
     writer = StringIO.new "", "w"
     w.write(datum, Avro::IO::BinaryEncoder.new(writer))
