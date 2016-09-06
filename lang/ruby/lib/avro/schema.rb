@@ -98,7 +98,7 @@ module Avro
       datum = if encoded
                 logical_datum
               else
-                expected_schema.type_adapter.encode(logical_datum)
+                expected_schema.type_adapter.encode(logical_datum) rescue nil
               end
 
       case expected_schema.type_sym

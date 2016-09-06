@@ -126,6 +126,7 @@ EOS
   def test_union
     union_schema = <<EOS
       ["string",
+       {"type": "int", "logicalType": "date"},
        "null",
        "long",
        {"type": "record",
