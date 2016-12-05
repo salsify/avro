@@ -55,7 +55,16 @@ RUN cpanm install Module::Install Module::Install::ReadmeFromPod \
   Test::Exception Test::Pod
 
 # Install Ruby modules
-RUN gem install echoe yajl-ruby multi_json snappy
+RUN gem install echoe yajl-ruby multi_json snappy wwtd
 
 # Install global Node modules
 RUN npm install -g grunt-cli
+
+# Install RVM 
+# RUN curl -sL https://rvm.io/mpapis.asc | gpg --import -
+RUN curl -sL https://get.rvm.io | bash -s stable --with-default-gems="bundler"
+RUN echo "source /etc/profile.d/rvm.sh" >> /etc/profile
+RUN /usr/local/rvm/bin/rvm requirements
+RUN /usr/local/rvm/bin/rvm install 2.1.10
+RUN /usr/local/rvm/bin/rvm install 2.2.5
+RUN /usr/local/rvm/bin/rvm install 2.3.1

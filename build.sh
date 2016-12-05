@@ -38,6 +38,7 @@ do
   case "$target" in
 
     test)
+      mvn install -DskipTests -pl dev-tools
       # run lang-specific tests
       (cd lang/java; mvn test)
       (cd lang/py; ant test)
@@ -101,6 +102,7 @@ do
       mvn -N -P rat antrun:run
 
       mkdir -p dist
+      mvn install -DskipTests -pl dev-tools
       (cd build; tar czf ../dist/${SRC_DIR}.tar.gz ${SRC_DIR})
 
       # build lang-specific artifacts
