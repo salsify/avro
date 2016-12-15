@@ -160,4 +160,14 @@ class TestSchema < Test::Unit::TestCase
       ]
     }
   end
+
+  def test_empty_record
+    schema = Avro::Schema.parse('{"type":"record", "name":"Empty"}')
+    assert_empty(schema.fields)
+  end
+
+  def test_empty_union
+    schema = Avro::Schema.parse('[]')
+    assert_equal(schema.to_s, '[]')
+  end
 end
