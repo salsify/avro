@@ -16,24 +16,26 @@
  * limitations under the License.
  */
 
-package org.apache.avro;
+@namespace("org.apache.avro.test.nullable")
+protocol Nullable {
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.MapMaker;
-import com.google.common.primitives.Bytes;
+    enum MyEnum {
+        One,
+        Two
+    }
 
-class GuavaClasses {
-  /*
-   * Referencing Guava classes here includes them in the minimized Guava jar
-   * that is shaded in the avro jar.
-   */
-  static {
-    MapMaker.class.getName();
-    Bytes.class.getName();
-    LoadingCache.class.getName();
-    CacheBuilder.class.getName();
-    CacheLoader.class.getName();
-  }
+    record SubRecord {
+        string value;
+    }
+
+    record RecordWithNullables {
+        union { null, string        } nullableString    = null;
+        union { null, long          } nullableLong      = null;
+        union { null, int           } nullableInt       = null;
+        union { null, map<string>   } nullableMap       = null;
+        union { null, array<string> } nullableArray     = null;
+        union { null, SubRecord     } nullableRecord    = null;
+        union { null, MyEnum        } nullableEnum      = null;
+    }
+
 }
