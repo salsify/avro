@@ -254,7 +254,7 @@ module Avro
       end
 
       def fields_hash
-        @fields_hash ||= (fields || {}).inject({}){|hsh, field| hsh[field.name] = field; hsh }
+        @fields_hash ||= fields.inject({}){|hsh, field| hsh[field.name] = field; hsh }
       end
 
       def to_avro(names=Set.new)
