@@ -164,6 +164,18 @@ module Avro
       Digest::SHA256.hexdigest(parsing_form).to_i(16)
     end
 
+    def read?(writers_schema)
+      SchemaCompatibility.can_read?(writers_schema, self)
+    end
+
+    def be_read?(other_schema)
+      other_schema.read?(self)
+    end
+
+    def mutual_read?(other_schema)
+      SchemaCompatibility.mutual_read?(other_schema, self)
+    end
+
     def ==(other, seen=nil)
       other.is_a?(Schema) && type_sym == other.type_sym
     end
@@ -251,7 +263,11 @@ module Avro
         else
           super(schema_type, name, namespace, names)
         end
-        @fields = RecordSchema.make_field_objects(fields, names, self.namespace)
+        @fields = if fields
+                    RecordSchema.make_field_objects(fields, names, self.namespace)
+                  else
+                    {}
+                  end
       end
 
       def fields_hash
@@ -302,8 +318,7 @@ module Avro
       def initialize(schemas, names=nil, default_namespace=nil)
         super(:union)
 
-        schema_objects = []
-        schemas.each_with_index do |schema, i|
+        @schemas = schemas.each_with_object([]) do |schema, schema_objects|
           new_schema = subparse(schema, names, default_namespace)
           ns_type = new_schema.type_sym
 
@@ -316,7 +331,6 @@ module Avro
           else
             schema_objects << new_schema
           end
-          @schemas = schema_objects
         end
       end
 
@@ -387,9 +401,13 @@ module Avro
         @order = order
       end
 
+      def default?
+        @default != :no_default
+      end
+
       def to_avro(names=Set.new)
         {'name' => name, 'type' => type.to_avro(names)}.tap do |avro|
-          avro['default'] = default unless default == :no_default
+          avro['default'] = default if default?
           avro['order'] = order if order
         end
       end
