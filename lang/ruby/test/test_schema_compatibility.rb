@@ -16,11 +16,7 @@
 
 require 'test_help'
 
-class TestSchemaCompatibilityValidator < Test::Unit::TestCase
-
-  def self.startup
-    Avro::SchemaCompatibilityValidator.clear
-  end
+class TestSchemaCompatibility < Test::Unit::TestCase
 
   def test_primitive_schema_compatibility
     Avro::Schema::PRIMITIVE_TYPES.each do |schema_type|
@@ -83,6 +79,10 @@ class TestSchemaCompatibilityValidator < Test::Unit::TestCase
     ].each_slice(2) do |(reader, writer)|
       assert_true(can_read?(writer, reader), "expecting #{reader} to read #{writer}")
     end
+  end
+
+  def test_broken
+    assert_false(can_read?(int_string_union_schema, int_union_schema))
   end
 
   def test_incompatible_reader_writer_pairs
@@ -327,7 +327,7 @@ class TestSchemaCompatibilityValidator < Test::Unit::TestCase
   end
 
   def can_read?(writer, reader)
-    Avro::SchemaCompatibilityValidator.can_read?(writer, reader)
+    Avro::SchemaCompatibility.can_read?(writer, reader)
   end
 
   def union_schema(*schemas)

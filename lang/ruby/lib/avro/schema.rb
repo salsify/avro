@@ -150,7 +150,7 @@ module Avro
     end
 
     def read?(writers_schema)
-      SchemaCompatibilityValidator.can_read?(writers_schema, self)
+      SchemaCompatibility.can_read?(writers_schema, self)
     end
 
     def be_read?(other_schema)
@@ -158,7 +158,7 @@ module Avro
     end
 
     def mutual_read?(other_schema)
-      SchemaCompatibilityValidator.mutual_read?(other_schema, self)
+      SchemaCompatibility.mutual_read?(other_schema, self)
     end
 
     def ==(other, seen=nil)

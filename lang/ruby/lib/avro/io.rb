@@ -221,51 +221,7 @@ module Avro
 
     class DatumReader
       def self.match_schemas(writers_schema, readers_schema)
-        # TODO: this needs alias support!
-        w_type = writers_schema.type_sym
-        r_type = readers_schema.type_sym
-
-        # This conditional is begging for some OO love.
-        if w_type == :union || r_type == :union
-          return true
-        end
-
-        if w_type == r_type
-          return true if Schema::PRIMITIVE_TYPES_SYM.include?(r_type)
-
-          case r_type
-          when :record
-            return writers_schema.fullname == readers_schema.fullname
-          when :error
-            return writers_schema.fullname == readers_schema.fullname
-          when :request
-            return true
-          when :fixed
-            return writers_schema.fullname == readers_schema.fullname &&
-                   writers_schema.size == readers_schema.size
-          when :enum
-            return writers_schema.fullname == readers_schema.fullname
-          when :map
-            return match_schemas(writers_schema.values, readers_schema.values)
-          when :array
-            return match_schemas(writers_schema.items, readers_schema.items)
-          end
-        end
-
-        # Handle schema promotion
-        if w_type == :int && [:long, :float, :double].include?(r_type)
-          return true
-        elsif w_type == :long && [:float, :double].include?(r_type)
-          return true
-        elsif w_type == :float && r_type == :double
-          return true
-        elsif w_type == :string && r_type == :bytes
-          return true
-        elsif w_type == :bytes && r_type == :string
-          return true
-        end
-
-        return false
+        Avro::SchemaCompatibility.match_schemas(writers_schema, readers_schema)
       end
 
       attr_accessor :writers_schema, :readers_schema
