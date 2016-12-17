@@ -16,7 +16,7 @@
 
 require 'rubygems'
 require 'echoe'
-VERSION = '1.9.0.2'
+VERSION = '1.9.0.3'
 Echoe.new('avro-salsify-fork', VERSION) do |p|
   p.author = "Apache Software Foundation / Salsify Engineering"
   p.email = "engineering@salsify.com"

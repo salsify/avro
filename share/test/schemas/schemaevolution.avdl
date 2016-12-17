@@ -16,24 +16,40 @@
  * limitations under the License.
  */
 
-package org.apache.avro;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.MapMaker;
-import com.google.common.primitives.Bytes;
-
-class GuavaClasses {
-  /*
-   * Referencing Guava classes here includes them in the minimized Guava jar
-   * that is shaded in the avro jar.
-   */
-  static {
-    MapMaker.class.getName();
-    Bytes.class.getName();
-    LoadingCache.class.getName();
-    CacheBuilder.class.getName();
-    CacheLoader.class.getName();
+/**
+ * A few simple test schemas for testing schema evolution the IDL generated classes
+ */
+@namespace("org.apache.avro.compiler.schema.evolve")
+protocol SchemaEvolveTesting {
+  record TestRecord1 {
+    string name;
+    long   value;
   }
+
+  record TestRecord2 {
+    string name;
+    long   value;
+    string data;
+  }
+
+  record TestRecord3 {
+    string name;
+    string data;
+  }
+
+  record NestedEvolve1 {
+    string rootName;
+    TestRecord1 nested;
+  }
+
+  record NestedEvolve2 {
+    string rootName;
+    TestRecord2 nested;
+  }
+
+  record NestedEvolve3 {
+    string rootName;
+    TestRecord3 nested;
+  }
+
 }

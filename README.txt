@@ -4,9 +4,12 @@ avro-salsify-fork Ruby gem.
 This fork contains changes to support logical types submitted in:
   https://github.com/apache/avro/pull/116
 
+This fork also contains a full schema compatibility check for ruby:
+  https://github.com/apache/avro/pull/170
+
 To use this gem add the following to your Gemfile:
 
-  gem 'avro-salsify-fork', '1.9.0.2', require: 'avro'
+  gem 'avro-salsify-fork', '1.9.0.3', require: 'avro'
 
 --------------------------------------------------------------------
 
