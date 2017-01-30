@@ -9,7 +9,7 @@ This fork also contains a full schema compatibility check for ruby:
 
 To use this gem add the following to your Gemfile:
 
-  gem 'avro-salsify-fork', '1.9.0.3', require: 'avro'
+  gem 'avro-salsify-fork', '1.9.0.4', require: 'avro'
 
 --------------------------------------------------------------------
 
