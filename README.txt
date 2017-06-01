@@ -1,3 +1,8 @@
+DEPRECATED: Use of the gem released from this fork is deprecated.
+See https://github.com/salsify/avro-patches for the preferred alternative.
+
+--------------------------------------------------------------------
+
 This fork of Apache Avro is being used to release a
 avro-salsify-fork Ruby gem.
 
