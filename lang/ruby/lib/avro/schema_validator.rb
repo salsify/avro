@@ -92,17 +92,15 @@ module Avro
           fail TypeMismatchError unless datum.is_a?(Integer)
           result.add_error(path, "out of bound value #{datum}") unless LONG_RANGE.cover?(datum)
         when :float, :double
-          fail TypeMismatchError unless [Float, Integer].any?(&datum.method(:is_a?))
+          fail TypeMismatchError unless datum.is_a?(Float) || datum.is_a?(Integer)
         when :fixed
           if datum.is_a? String
-            message = "expected fixed with size #{expected_schema.size}, got \"#{datum}\" with size #{datum.size}"
-            result.add_error(path, message) unless datum.bytesize == expected_schema.size
+            result.add_error(path, fixed_string_message(expected_schema.size, datum)) unless datum.bytesize == expected_schema.size
           else
             result.add_error(path, "expected fixed with size #{expected_schema.size}, got #{actual_value_message(datum)}")
           end
         when :enum
-          message = "expected enum with values #{expected_schema.symbols}, got #{actual_value_message(datum)}"
-          result.add_error(path, message) unless expected_schema.symbols.include?(datum)
+          result.add_error(path, enum_message(expected_schema.symbols, datum)) unless expected_schema.symbols.include?(datum)
         when :array
           validate_array(expected_schema, datum, path, result)
         when :map
@@ -120,6 +118,14 @@ module Avro
         end
       rescue TypeMismatchError
         result.add_error(path, "expected type #{expected_schema.type_sym}, got #{actual_value_message(datum)}")
+      end
+
+      def fixed_string_message(size, datum)
+        "expected fixed with size #{size}, got \"#{datum}\" with size #{datum.size}"
+      end
+
+      def enum_message(symbols, datum)
+        "expected enum with values #{symbols}, got #{actual_value_message(datum)}"
       end
 
       def validate_array(expected_schema, datum, path, result)
@@ -144,9 +150,10 @@ module Avro
           validate_recursive(expected_schema.schemas.first, datum, path, result)
           return
         end
-        types_and_results = validate_possible_types(datum, expected_schema, path)
-        failures, successes = types_and_results.partition { |r| r[:result].failure? }
-        return if successes.any?
+        failures = []
+        compatible_type = first_compatible_type(datum, expected_schema, path, failures)
+        return unless compatible_type.nil?
+
         complex_type_failed = failures.detect { |r| COMPLEX_TYPES.include?(r[:type]) }
         if complex_type_failed
           complex_type_failed[:result].errors.each { |error| result << error }
@@ -156,19 +163,18 @@ module Avro
         end
       end
 
-      def validate_possible_types(datum, expected_schema, path)
-        expected_schema.schemas.map do |schema|
+      def first_compatible_type(datum, expected_schema, path, failures)
+        expected_schema.schemas.find do |schema|
           result = Result.new
           validate_recursive(schema, datum, path, result)
-          { type: schema.type_sym, result: result }
+          failures << { type: schema.type_sym, result: result } if result.failure?
+          !result.failure?
         end
       end
 
       def deeper_path_for_hash(sub_key, path)
         "#{path}#{PATH_SEPARATOR}#{sub_key}".squeeze(PATH_SEPARATOR)
       end
-
-      private
 
       def actual_value_message(value)
         avro_type = if value.class == Integer
