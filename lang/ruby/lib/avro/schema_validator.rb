@@ -20,7 +20,8 @@ module Avro
     PATH_SEPARATOR = '.'.freeze
     INT_RANGE = Schema::INT_MIN_VALUE..Schema::INT_MAX_VALUE
     LONG_RANGE = Schema::LONG_MIN_VALUE..Schema::LONG_MAX_VALUE
-    COMPLEX_TYPES = [:array, :error, :map, :record, :request]
+    COMPLEX_TYPES = [:array, :error, :map, :record, :request].freeze
+    BOOLEAN_VALUES = [true, false].freeze
 
     class Result
       attr_reader :errors
@@ -82,7 +83,7 @@ module Avro
         when :null
           fail TypeMismatchError unless datum.nil?
         when :boolean
-          fail TypeMismatchError unless [true, false].include?(datum)
+          fail TypeMismatchError unless BOOLEAN_VALUES.include?(datum)
         when :string, :bytes
           fail TypeMismatchError unless datum.is_a?(String)
         when :int
