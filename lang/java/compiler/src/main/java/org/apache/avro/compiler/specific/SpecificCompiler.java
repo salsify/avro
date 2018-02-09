@@ -33,6 +33,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.avro.Conversion;
 import org.apache.avro.Conversions;
@@ -41,6 +43,8 @@ import org.apache.avro.data.TimeConversions.DateConversion;
 import org.apache.avro.data.TimeConversions.TimeConversion;
 import org.apache.avro.data.TimeConversions.TimestampConversion;
 import org.apache.avro.specific.SpecificData;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.codehaus.jackson.JsonNode;
 
 import org.apache.avro.Protocol;
@@ -92,6 +96,10 @@ public class SpecificCompiler {
     PUBLIC, PUBLIC_DEPRECATED, PRIVATE
   }
 
+  public static enum NameFormat {
+    UNMODIFIED, LOWER_HYPHEN, LOWER_UNDERSCORE, LOWER_CAMEL, UPPER_CAMEL, UPPER_UNDERSCORE
+  }
+
   private static final SpecificData SPECIFIC = new SpecificData();
   static {
     SPECIFIC.addLogicalTypeConversion(new DateConversion());
@@ -110,6 +118,7 @@ public class SpecificCompiler {
   private String outputCharacterEncoding;
   private boolean enableDecimalLogicalType = false;
   private String suffix = ".java";
+  private NameFormat classNameStyle = NameFormat.UNMODIFIED;
 
   /*
    * Used in the record.vm template.
@@ -922,6 +931,43 @@ public class SpecificCompiler {
     case BOOLEAN: return false;
     default: return true;
     }
+  }
+
+  /**
+   * Formats a name into the specified format
+   * LOWER_HYPHEN: lower-hyphen
+   * LOWER_UNDERSCORE: lower_underscore
+   * LOWER_CAMEL: lowerCamel
+   * UPPER_CAMEL: UpperCamel
+   * UPPER_UNDERSCORE: UPPER_UNDERSCORE
+   * @param name the string to reformat
+   * @param format the format to use
+   * @return the reformatted name
+   */
+  public static String nameFormatter(String name, NameFormat format) {
+    if (format != NameFormat.UNMODIFIED) {
+      // break the incoming string into list of parts, splitting at hyphens, underscores and camels
+      List<String> words = Arrays.stream(StringUtils.split(name, "-_"))
+              .map(StringUtils::splitByCharacterTypeCamelCase)
+              .flatMap(Stream::of)
+              .collect(Collectors.toList());
+
+      switch (format) {
+        case LOWER_HYPHEN:
+          return StringUtils.join(words.stream().map(StringUtils::lowerCase).collect(Collectors.toList()), "-");
+        case LOWER_UNDERSCORE:
+          return StringUtils.join(words.stream().map(StringUtils::lowerCase).collect(Collectors.toList()), "_");
+        case LOWER_CAMEL:
+          return words.stream().findFirst().map(StringUtils::lowerCase).orElse("")
+                  + StringUtils.join(words.stream().skip(1).map(WordUtils::capitalizeFully).collect(Collectors.toList()), "");
+        case UPPER_CAMEL:
+          return StringUtils.join(words.stream().map(WordUtils::capitalizeFully).collect(Collectors.toList()), "");
+        case UPPER_UNDERSCORE:
+          return StringUtils.join(words.stream().map(StringUtils::upperCase).collect(Collectors.toList()), "_");
+      }
+    }
+
+    return name;
   }
 
   public static void main(String[] args) throws Exception {

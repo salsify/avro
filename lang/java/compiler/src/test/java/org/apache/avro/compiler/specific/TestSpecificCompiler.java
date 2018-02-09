@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.avro.AvroTestUtil;
 import org.apache.avro.LogicalTypes;
@@ -570,7 +571,28 @@ public class TestSpecificCompiler {
         "null", compiler.conversionInstance(uuidSchema));
   }
 
+  @Test
+  public void testNameFormatter() throws Exception {
+    String[] subject = {"lowercase", "Class", "HTML", "PDFLoader", "AString", "SimpleXMLParser", "GL11Version", "May5", "BFG9000", "lower-hyphen-name", "lower_underscore_name", "lowerCamel", "UpperCamel", "UPPER_UNDERSCORE" };
+
+    String[] lowerHyphen = {"lowercase", "class", "html", "pdf-loader", "a-string", "simple-xml-parser", "gl-11-version", "may-5", "bfg-9000", "lower-hyphen-name", "lower-underscore-name", "lower-camel", "upper-camel", "upper-underscore" };
+    IntStream.range(0, subject.length).forEach(idx -> Assert.assertEquals("Should convert with LOWER_HYPHEN format", lowerHyphen[idx], SpecificCompiler.nameFormatter(subject[idx], SpecificCompiler.NameFormat.LOWER_HYPHEN)));
+
+    String[] lowerUnderscore = {"lowercase", "class", "html", "pdf_loader", "a_string", "simple_xml_parser", "gl_11_version", "may_5", "bfg_9000", "lower_hyphen_name", "lower_underscore_name", "lower_camel", "upper_camel", "upper_underscore" };
+    IntStream.range(0, subject.length).forEach(idx -> Assert.assertEquals("Should convert with LOWER_HYPHEN format", lowerUnderscore[idx], SpecificCompiler.nameFormatter(subject[idx], SpecificCompiler.NameFormat.LOWER_UNDERSCORE)));
+
+    String[] lowerCamel = {"lowercase", "class", "html", "pdfLoader", "aString", "simpleXmlParser", "gl11Version", "may5", "bfg9000", "lowerHyphenName", "lowerUnderscoreName", "lowerCamel", "upperCamel", "upperUnderscore" };
+    IntStream.range(0, subject.length).forEach(idx -> Assert.assertEquals("Should convert with LOWER_CAMEL format", lowerCamel[idx], SpecificCompiler.nameFormatter(subject[idx], SpecificCompiler.NameFormat.LOWER_CAMEL)));
+
+    String[] upperCamel = {"Lowercase", "Class", "Html", "PdfLoader", "AString", "SimpleXmlParser", "Gl11Version", "May5", "Bfg9000", "LowerHyphenName", "LowerUnderscoreName", "LowerCamel", "UpperCamel", "UpperUnderscore" };
+    IntStream.range(0, subject.length).forEach(idx -> Assert.assertEquals("Should convert with UPPER_CAMEL format", upperCamel[idx], SpecificCompiler.nameFormatter(subject[idx], SpecificCompiler.NameFormat.UPPER_CAMEL)));
+
+    String[] upperUnderscore = {"LOWERCASE", "CLASS", "HTML", "PDF_LOADER", "A_STRING", "SIMPLE_XML_PARSER", "GL_11_VERSION", "MAY_5", "BFG_9000", "LOWER_HYPHEN_NAME", "LOWER_UNDERSCORE_NAME", "LOWER_CAMEL", "UPPER_CAMEL", "UPPER_UNDERSCORE" };
+    IntStream.range(0, subject.length).forEach(idx -> Assert.assertEquals("Should convert with UPPER_CAMEL format", upperUnderscore[idx], SpecificCompiler.nameFormatter(subject[idx], SpecificCompiler.NameFormat.UPPER_UNDERSCORE)));
+  }
+
   public void testToFromByteBuffer() {
 
   }
+
 }
