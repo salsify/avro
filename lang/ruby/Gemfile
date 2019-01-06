@@ -19,3 +19,5 @@ gem 'echoe'
 gem 'multi_json'
 gem 'snappy'
 gem 'test-unit'
+# specify a version of rdoc that is compatible with ruby 2.1.5
+gem 'rdoc', '5.1.0'
