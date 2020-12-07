@@ -19,7 +19,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'avro'
-  spec.version       = '1.10.1'
+  spec.version       = File.open('lib/avro/VERSION.txt').read.chomp
   spec.authors       = ['Apache Software Foundation']
   spec.email         = ['dev@avro.apache.org']
   spec.summary       = 'Apache Avro for Ruby'
