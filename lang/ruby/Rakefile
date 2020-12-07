@@ -20,7 +20,7 @@ require 'bundler/setup'
 
 Bundler::GemHelper.install_tasks
 
-# Deferring this to the gemspec file
+# Deferring this to the gemspec file so we can bundle the gem directly from Github.
 # require 'echoe'
 #
 # VERSION = File.open('../../share/VERSION.txt').read.sub('-SNAPSHOT', '.pre1').chomp
@@ -61,7 +61,7 @@ SHARE = HERE + '/../../share'
 SCHEMAS = SHARE + '/test/schemas'
 BUILD = HERE + '/../../build'
 
-# Deferring this to the gemspec file
+# Deferring this to the gemspec file so we can bundle the gem directly from Github.
 # task :dist => [:gem] do
 #   mkdir_p "../../dist/ruby"
 #   cp "pkg/avro-#{VERSION}.gem", "../../dist/ruby"
