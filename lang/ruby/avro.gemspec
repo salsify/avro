@@ -46,5 +46,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '<= 0.81'
 
   # rdoc 6.2.1 requires Ruby 2.4+
-  spec.add_development_dependency 'rdoc', '<= 6.2.0'
+  spec.add_development_dependency 'rdoc', '<= 6.4.0'
 end
