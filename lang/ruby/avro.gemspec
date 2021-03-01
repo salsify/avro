@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'parallel', '<= 1.19.2'
 
   # rubocop 0.82 requires Ruby 2.4+
-  spec.add_development_dependency 'rubocop', '<= 0.81'
+  spec.add_development_dependency 'rubocop', '<= 1.12'
 
   # rdoc 6.2.1 requires Ruby 2.4+
   spec.add_development_dependency 'rdoc', '<= 6.2.0'
